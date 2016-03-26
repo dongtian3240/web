@@ -114,7 +114,7 @@ func Post(route string, handler interface{}) {
 // put
 func Put(route string, handler interface{}) {
 
-	mainServer.AddRoute(route, "Put", handler)
+	mainServer.AddRoute(route, "PUT", handler)
 }
 
 // delete
