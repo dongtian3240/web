@@ -1,10 +1,6 @@
 package web
 
-import (
-	"os"
-	"strings"
-	"time"
-)
+import "os"
 
 func FileExists(fileName string) bool {
 
@@ -23,12 +19,4 @@ func DirExists(dir string) bool {
 	}
 
 	return info.IsDir()
-}
-
-func WebTime(t time.Time) string {
-	ftime := t.Format(time.RFC1123)
-	if strings.HasSuffix(ftime, "UTC") {
-		ftime = ftime[0:len(ftime)-3] + "GMT"
-	}
-	return ftime
 }

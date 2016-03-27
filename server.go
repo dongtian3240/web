@@ -70,7 +70,7 @@ func (s *Server) Process(response http.ResponseWriter, request *http.Request) {
 func (s *Server) RouteHandler(response http.ResponseWriter, request *http.Request) *Route {
 
 	requestPath := request.URL.Path
-	fmt.Println("path", requestPath)
+	log.Println("path", requestPath)
 	ctx := &Context{Request: request, Response: response, Params: map[string]string{}, webServer: s}
 
 	//tm := time.Now().UTC()
@@ -86,13 +86,14 @@ func (s *Server) RouteHandler(response http.ResponseWriter, request *http.Reques
 
 	//尝试是否静态资源
 	if request.Method == "GET" || request.Method == "Head" {
-		if s.tryServingFile(requestPath, response, request) {
+
+		if s.StaticFile(requestPath, response, request) {
 			return nil
 		}
 	}
 
 	//查找路由
-	fmt.Println("search router.....")
+	log.Println("search router.....")
 	for i := 0; i < len(s.routes); i++ {
 
 		route := s.routes[i]
@@ -132,11 +133,11 @@ func (s *Server) AddRoute(url, method string, handler interface{}) {
 	switch handler.(type) {
 
 	case http.Handler:
-		fmt.Println("========匹配到http handler", handler)
+		log.Println("========匹配到http handler type ")
 		s.routes = append(s.routes, Route{url: url, method: method, reg: re, httpHandler: handler.(http.Handler)})
 
 	default:
-
+		log.Println("match the handler.....")
 		fv := reflect.ValueOf(handler)
 		s.routes = append(s.routes, Route{url: url, method: method, reg: re, handler: fv})
 
@@ -144,16 +145,16 @@ func (s *Server) AddRoute(url, method string, handler interface{}) {
 
 }
 
-func (s *Server) tryServingFile(name string, response http.ResponseWriter, request *http.Request) bool {
+func (s *Server) StaticFile(name string, response http.ResponseWriter, request *http.Request) bool {
 
 	wd, _ := os.Getwd()
 	for _, staticDir := range defaultStatic {
 		var indx = strings.Index(name, staticDir)
 		if indx == 0 {
 			staticFile := path.Join(wd, name)
-			fmt.Println("staticFile", staticFile)
+			log.Println("staticFile", staticFile)
 			if FileExists(staticFile) {
-				fmt.Println("has static file")
+				log.Println("has static file")
 				http.ServeFile(response, request, staticFile)
 				return true
 			}
